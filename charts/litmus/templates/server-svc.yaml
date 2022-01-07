@@ -29,6 +29,5 @@ spec:
     - name: auth-rpc-server
       port: {{ .Values.portal.server.service.authRpcServer.port }}
       targetPort: {{ .Values.portal.server.service.authRpcServer.targetPort }}
-
   selector:
     app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
