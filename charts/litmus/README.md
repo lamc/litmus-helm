@@ -1,6 +1,6 @@
 # litmus
 
-![Version: 2.7.1](https://img.shields.io/badge/Version-2.7.1-informational?style=flat-square) ![AppVersion: 2.7.0](https://img.shields.io/badge/AppVersion-2.7.0-informational?style=flat-square)
+![Version: 2.15.0](https://img.shields.io/badge/Version-2.15.0-informational?style=flat-square) ![AppVersion: 2.14.0](https://img.shields.io/badge/AppVersion-2.14.0-informational?style=flat-square)
 
 A Helm chart to install ChaosCenter
 
@@ -10,9 +10,9 @@ A Helm chart to install ChaosCenter
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| rajdas98 | raj.das@mayadata.io |  |
-| ispeakc0de | shubham.chaudhary@mayadata.io |  |
-| jasstkn | jasssstkn@yahoo.com |  |
+| imrajdas | <raj.das@mayadata.io> |  |
+| ispeakc0de | <shubham.chaudhary@mayadata.io> |  |
+| jasstkn | <jasssstkn@yahoo.com> |  |
 
 ## Source Code
 
@@ -21,6 +21,10 @@ A Helm chart to install ChaosCenter
 ## Requirements
 
 Kubernetes: `>=1.16.0-0`
+
+| Repository | Name | Version |
+|------------|------|---------|
+| https://charts.bitnami.com/bitnami | mongodb | 12.1.11 |
 
 ## Installing the Chart
 
@@ -31,20 +35,27 @@ $ helm repo add litmuschaos https://litmuschaos.github.io/litmus-helm/
 $ helm install litmus-portal litmuschaos/litmus
 ```
 
+## Upgrading Chart
+
+### From 2.13.0 -> 2.13.1 or 2.13.0 -> Above
+
+We separated service configuration from `portal.server.service` to `portal.server.graphqlServer.service` and `portal.server.authServer.service`. You need to move your values to the correspondent options and upgrade as usual.
+
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | adminConfig.ADMIN_PASSWORD | string | `"litmus"` |  |
 | adminConfig.ADMIN_USERNAME | string | `"admin"` |  |
-| adminConfig.DBPASSWORD | string | `"1234"` |  |
-| adminConfig.DBUSER | string | `"admin"` |  |
-| adminConfig.DB_PORT | string | `"27017"` |  |
-| adminConfig.DB_SERVER | string | `""` | leave empty if uses Mongo DB deployed by this chart |
+| adminConfig.DBPASSWORD | string | `""` | leave empty if uses Mongo DB deployed by this chart |
+| adminConfig.DBUSER | string | `""` |  |
+| adminConfig.DB_PORT | string | `""` |  |
+| adminConfig.DB_SERVER | string | `""` |  |
 | adminConfig.JWTSecret | string | `"litmus-portal@123"` |  |
 | adminConfig.SKIP_SSL_VERIFY | string | `"false"` |  |
-| adminConfig.VERSION | string | `"2.7.0"` |  |
+| adminConfig.VERSION | string | `"2.14.0"` |  |
 | customLabels | object | `{}` | Additional labels |
+| existingSecret | string | `""` | Use existing secret (e.g., External Secrets) |
 | image.imagePullSecrets | list | `[]` |  |
 | image.imageRegistryName | string | `"litmuschaos"` |  |
 | ingress.annotations | object | `{}` |  |
@@ -52,39 +63,11 @@ $ helm install litmus-portal litmuschaos/litmus
 | ingress.host.name | string | `""` | This is ingress hostname (ex: my-domain.com) |
 | ingress.host.paths.backend | string | `"/backend/(.*)"` | You may need adapt the path depending your ingress-controller |
 | ingress.host.paths.frontend | string | `"/(.*)"` | You may need adapt the path depending your ingress-controller |
+| ingress.ingressClassName | string | `""` |  |
 | ingress.name | string | `"litmus-ingress"` |  |
 | ingress.tls | list | `[]` |  |
-| mongo.affinity | object | `{}` |  |
-| mongo.automountServiceAccountToken | bool | `false` |  |
-| mongo.containerPort | int | `27017` |  |
-| mongo.customLabels | object | `{}` |  |
-| mongo.image.pullPolicy | string | `"Always"` |  |
-| mongo.image.repository | string | `"mongo"` |  |
-| mongo.image.tag | string | `"4.2.8"` |  |
-| mongo.livenessProbe.failureThreshold | int | `5` |  |
-| mongo.livenessProbe.initialDelaySeconds | int | `30` |  |
-| mongo.livenessProbe.periodSeconds | int | `10` |  |
-| mongo.livenessProbe.successThreshold | int | `1` |  |
-| mongo.livenessProbe.timeoutSeconds | int | `5` |  |
-| mongo.nodeSelector | object | `{}` |  |
-| mongo.persistence.accessMode | string | `"ReadWriteOnce"` |  |
-| mongo.persistence.size | string | `"20Gi"` |  |
-| mongo.readinessProbe.initialDelaySeconds | int | `5` |  |
-| mongo.readinessProbe.periodSeconds | int | `10` |  |
-| mongo.readinessProbe.successThreshold | int | `1` |  |
-| mongo.readinessProbe.timeoutSeconds | int | `1` |  |
-| mongo.replicas | int | `1` |  |
-| mongo.resources.limits.cpu | string | `"550m"` |  |
-| mongo.resources.limits.ephemeral-storage | string | `"3Gi"` |  |
-| mongo.resources.limits.memory | string | `"712Mi"` |  |
-| mongo.resources.requests.cpu | string | `"225m"` |  |
-| mongo.resources.requests.ephemeral-storage | string | `"1Gi"` |  |
-| mongo.resources.requests.memory | string | `"300Mi"` |  |
-| mongo.securityContext.allowPrivilegeEscalation | bool | `false` |  |
-| mongo.service.port | int | `27017` |  |
-| mongo.service.targetPort | int | `27017` |  |
-| mongo.service.type | string | `"ClusterIP"` |  |
-| mongo.tolerations | list | `[]` |  |
+| mongodb | object | `{"architecture":"standalone","auth":{"enabled":true,"existingSecret":"","rootPassword":"superhardpassword"},"enabled":true,"metrics":{"enabled":false,"prometheusRule":{"enabled":false}},"replicaCount":1,"useStatefulSet":false}` | Configure the Bitnami MongoDB subchart see values at https://github.com/bitnami/charts/blob/master/bitnami/mongodb/values.yaml |
+| mongodb.auth.existingSecret | string | `""` | existingSecret Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-passwords`, `mongodb-root-password`, `mongodb-metrics-password`, ` mongodb-replica-set-key`) |
 | nameOverride | string | `""` |  |
 | openshift.route.annotations | object | `{}` |  |
 | openshift.route.enabled | bool | `false` |  |
@@ -92,11 +75,16 @@ $ helm install litmus-portal litmuschaos/litmus
 | openshift.route.name | string | `"litmus-portal"` |  |
 | portal.frontend.affinity | object | `{}` |  |
 | portal.frontend.automountServiceAccountToken | bool | `false` |  |
+| portal.frontend.autoscaling.enabled | bool | `false` |  |
+| portal.frontend.autoscaling.maxReplicas | int | `3` |  |
+| portal.frontend.autoscaling.minReplicas | int | `2` |  |
+| portal.frontend.autoscaling.targetCPUUtilizationPercentage | int | `50` |  |
+| portal.frontend.autoscaling.targetMemoryUtilizationPercentage | int | `50` |  |
 | portal.frontend.containerPort | int | `8080` |  |
 | portal.frontend.customLabels | object | `{}` |  |
 | portal.frontend.image.pullPolicy | string | `"Always"` |  |
 | portal.frontend.image.repository | string | `"litmusportal-frontend"` |  |
-| portal.frontend.image.tag | string | `"2.7.0"` |  |
+| portal.frontend.image.tag | string | `"2.14.0"` |  |
 | portal.frontend.livenessProbe.failureThreshold | int | `5` |  |
 | portal.frontend.livenessProbe.initialDelaySeconds | int | `30` |  |
 | portal.frontend.livenessProbe.periodSeconds | int | `10` |  |
@@ -120,22 +108,29 @@ $ helm install litmus-portal litmuschaos/litmus
 | portal.frontend.service.annotations | object | `{}` |  |
 | portal.frontend.service.port | int | `9091` |  |
 | portal.frontend.service.targetPort | int | `8080` |  |
-| portal.frontend.service.type | string | `"NodePort"` |  |
+| portal.frontend.service.type | string | `"ClusterIP"` |  |
 | portal.frontend.tolerations | list | `[]` |  |
 | portal.frontend.updateStrategy | object | `{}` |  |
 | portal.frontend.virtualService.enabled | bool | `false` |  |
 | portal.frontend.virtualService.gateways | list | `[]` |  |
 | portal.frontend.virtualService.hosts | list | `[]` |  |
+| portal.frontend.virtualService.pathPrefixEnabled | bool | `false` |  |
 | portal.server.affinity | object | `{}` |  |
 | portal.server.authServer.automountServiceAccountToken | bool | `false` |  |
+| portal.server.authServer.autoscaling.enabled | bool | `false` |  |
+| portal.server.authServer.autoscaling.maxReplicas | int | `3` |  |
+| portal.server.authServer.autoscaling.minReplicas | int | `2` |  |
+| portal.server.authServer.autoscaling.targetCPUUtilizationPercentage | int | `50` |  |
+| portal.server.authServer.autoscaling.targetMemoryUtilizationPercentage | int | `50` |  |
 | portal.server.authServer.env.LITMUS_GQL_GRPC_PORT | string | `":8000"` |  |
 | portal.server.authServer.image.pullPolicy | string | `"Always"` |  |
 | portal.server.authServer.image.repository | string | `"litmusportal-auth-server"` |  |
-| portal.server.authServer.image.tag | string | `"2.7.0"` |  |
+| portal.server.authServer.image.tag | string | `"2.14.0"` |  |
 | portal.server.authServer.ports[0].containerPort | int | `3030` |  |
 | portal.server.authServer.ports[0].name | string | `"auth-server"` |  |
 | portal.server.authServer.ports[1].containerPort | int | `3000` |  |
 | portal.server.authServer.ports[1].name | string | `"auth-rpc-server"` |  |
+| portal.server.authServer.replicas | int | `1` |  |
 | portal.server.authServer.resources.limits.cpu | string | `"550m"` |  |
 | portal.server.authServer.resources.limits.ephemeral-storage | string | `"1Gi"` |  |
 | portal.server.authServer.resources.limits.memory | string | `"712Mi"` |  |
@@ -146,24 +141,37 @@ $ helm install litmus-portal litmuschaos/litmus
 | portal.server.authServer.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | portal.server.authServer.securityContext.runAsNonRoot | bool | `true` |  |
 | portal.server.authServer.securityContext.runAsUser | int | `2000` |  |
+| portal.server.authServer.service.annotations | object | `{}` |  |
+| portal.server.authServer.service.authRpcServer.port | int | `3030` |  |
+| portal.server.authServer.service.authRpcServer.targetPort | int | `3030` |  |
+| portal.server.authServer.service.authServer.port | int | `9003` |  |
+| portal.server.authServer.service.authServer.targetPort | int | `3000` |  |
+| portal.server.authServer.service.type | string | `"ClusterIP"` |  |
+| portal.server.authServer.volumeMounts | list | `[]` |  |
+| portal.server.authServer.volumes | list | `[]` |  |
 | portal.server.customLabels | object | `{}` |  |
 | portal.server.graphqlServer.genericEnv.AGENT_DEPLOYMENTS | string | `"[\"app=chaos-exporter\", \"name=chaos-operator\", \"app=event-tracker\", \"app=workflow-controller\"]"` |  |
+| portal.server.graphqlServer.genericEnv.CHAOS_CENTER_UI_ENDPOINT | string | `""` |  |
 | portal.server.graphqlServer.genericEnv.CONTAINER_RUNTIME_EXECUTOR | string | `"k8sapi"` |  |
-| portal.server.graphqlServer.genericEnv.HUB_BRANCH_NAME | string | `"v2.6.x"` |  |
+| portal.server.graphqlServer.genericEnv.HUB_BRANCH_NAME | string | `"v2.14.x"` |  |
 | portal.server.graphqlServer.genericEnv.LITMUS_AUTH_GRPC_PORT | string | `":3030"` |  |
-| portal.server.graphqlServer.genericEnv.SELF_CLUSTER | string | `"true"` |  |
+| portal.server.graphqlServer.genericEnv.REMOTE_HUB_MAX_SIZE | string | `"5000000"` |  |
+| portal.server.graphqlServer.genericEnv.SELF_AGENT | string | `"true"` |  |
+| portal.server.graphqlServer.genericEnv.SELF_AGENT_NODE_SELECTOR | string | `""` |  |
+| portal.server.graphqlServer.genericEnv.SELF_AGENT_TOLERATIONS | string | `""` |  |
 | portal.server.graphqlServer.genericEnv.TLS_CERT_64 | string | `""` |  |
 | portal.server.graphqlServer.genericEnv.TLS_SECRET_NAME | string | `""` |  |
+| portal.server.graphqlServer.genericEnv.WORKFLOW_HELPER_IMAGE_VERSION | string | `"2.14.0"` |  |
 | portal.server.graphqlServer.image.pullPolicy | string | `"Always"` |  |
 | portal.server.graphqlServer.image.repository | string | `"litmusportal-server"` |  |
-| portal.server.graphqlServer.image.tag | string | `"2.7.0"` |  |
-| portal.server.graphqlServer.imageEnv.ARGO_WORKFLOW_CONTROLLER_IMAGE | string | `"workflow-controller:v3.2.3"` |  |
-| portal.server.graphqlServer.imageEnv.ARGO_WORKFLOW_EXECUTOR_IMAGE | string | `"argoexec:v3.2.3"` |  |
-| portal.server.graphqlServer.imageEnv.EVENT_TRACKER_IMAGE | string | `"litmusportal-event-tracker:2.7.0"` |  |
-| portal.server.graphqlServer.imageEnv.LITMUS_CHAOS_EXPORTER_IMAGE | string | `"chaos-exporter:2.6.0"` |  |
-| portal.server.graphqlServer.imageEnv.LITMUS_CHAOS_OPERATOR_IMAGE | string | `"chaos-operator:2.6.0"` |  |
-| portal.server.graphqlServer.imageEnv.LITMUS_CHAOS_RUNNER_IMAGE | string | `"chaos-runner:2.6.0"` |  |
-| portal.server.graphqlServer.imageEnv.SUBSCRIBER_IMAGE | string | `"litmusportal-subscriber:2.7.0"` |  |
+| portal.server.graphqlServer.image.tag | string | `"2.14.0"` |  |
+| portal.server.graphqlServer.imageEnv.ARGO_WORKFLOW_CONTROLLER_IMAGE | string | `"workflow-controller:v3.3.1"` |  |
+| portal.server.graphqlServer.imageEnv.ARGO_WORKFLOW_EXECUTOR_IMAGE | string | `"argoexec:v3.3.1"` |  |
+| portal.server.graphqlServer.imageEnv.EVENT_TRACKER_IMAGE | string | `"litmusportal-event-tracker:2.14.0"` |  |
+| portal.server.graphqlServer.imageEnv.LITMUS_CHAOS_EXPORTER_IMAGE | string | `"chaos-exporter:2.14.0"` |  |
+| portal.server.graphqlServer.imageEnv.LITMUS_CHAOS_OPERATOR_IMAGE | string | `"chaos-operator:2.14.0"` |  |
+| portal.server.graphqlServer.imageEnv.LITMUS_CHAOS_RUNNER_IMAGE | string | `"chaos-runner:2.14.0"` |  |
+| portal.server.graphqlServer.imageEnv.SUBSCRIBER_IMAGE | string | `"litmusportal-subscriber:2.14.0"` |  |
 | portal.server.graphqlServer.livenessProbe.failureThreshold | int | `5` |  |
 | portal.server.graphqlServer.livenessProbe.initialDelaySeconds | int | `30` |  |
 | portal.server.graphqlServer.livenessProbe.periodSeconds | int | `10` |  |
@@ -187,7 +195,13 @@ $ helm install litmus-portal litmuschaos/litmus
 | portal.server.graphqlServer.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | portal.server.graphqlServer.securityContext.runAsNonRoot | bool | `true` |  |
 | portal.server.graphqlServer.securityContext.runAsUser | int | `2000` |  |
-| portal.server.graphqlServer.volumeMounts[0].mountPath | string | `"/tmp/gitops"` |  |
+| portal.server.graphqlServer.service.annotations | object | `{}` |  |
+| portal.server.graphqlServer.service.graphqlRpcServer.port | int | `8000` |  |
+| portal.server.graphqlServer.service.graphqlRpcServer.targetPort | int | `8000` |  |
+| portal.server.graphqlServer.service.graphqlServer.port | int | `9002` |  |
+| portal.server.graphqlServer.service.graphqlServer.targetPort | int | `8080` |  |
+| portal.server.graphqlServer.service.type | string | `"ClusterIP"` |  |
+| portal.server.graphqlServer.volumeMounts[0].mountPath | string | `"/tmp/"` |  |
 | portal.server.graphqlServer.volumeMounts[0].name | string | `"gitops-storage"` |  |
 | portal.server.graphqlServer.volumeMounts[1].mountPath | string | `"/tmp/version"` |  |
 | portal.server.graphqlServer.volumeMounts[1].name | string | `"hub-storage"` |  |
@@ -197,22 +211,12 @@ $ helm install litmus-portal litmuschaos/litmus
 | portal.server.graphqlServer.volumes[1].name | string | `"hub-storage"` |  |
 | portal.server.nodeSelector | object | `{}` |  |
 | portal.server.replicas | int | `1` |  |
-| portal.server.service.annotations | object | `{}` |  |
-| portal.server.service.authRpcServer.port | int | `3030` |  |
-| portal.server.service.authRpcServer.targetPort | int | `3030` |  |
-| portal.server.service.authServer.port | int | `9003` |  |
-| portal.server.service.authServer.targetPort | int | `3000` |  |
-| portal.server.service.graphqlRpcServer.port | int | `8000` |  |
-| portal.server.service.graphqlRpcServer.targetPort | int | `8000` |  |
-| portal.server.service.graphqlServer.port | int | `9002` |  |
-| portal.server.service.graphqlServer.targetPort | int | `8080` |  |
-| portal.server.service.type | string | `"NodePort"` |  |
 | portal.server.serviceAccountName | string | `"litmus-server-account"` |  |
 | portal.server.tolerations | list | `[]` |  |
 | portal.server.updateStrategy | object | `{}` |  |
 | portal.server.waitForMongodb.image.pullPolicy | string | `"Always"` |  |
 | portal.server.waitForMongodb.image.repository | string | `"curl"` |  |
-| portal.server.waitForMongodb.image.tag | string | `"2.6.0"` |  |
+| portal.server.waitForMongodb.image.tag | string | `"2.14.0"` |  |
 | portal.server.waitForMongodb.resources.limits.cpu | string | `"250m"` |  |
 | portal.server.waitForMongodb.resources.limits.ephemeral-storage | string | `"1Gi"` |  |
 | portal.server.waitForMongodb.resources.limits.memory | string | `"512Mi"` |  |
@@ -223,10 +227,11 @@ $ helm install litmus-portal litmuschaos/litmus
 | upgradeAgent.affinity | object | `{}` |  |
 | upgradeAgent.controlPlane.image.pullPolicy | string | `"Always"` |  |
 | upgradeAgent.controlPlane.image.repository | string | `"upgrade-agent-cp"` |  |
-| upgradeAgent.controlPlane.image.tag | string | `"2.7.0"` |  |
+| upgradeAgent.controlPlane.image.tag | string | `"2.14.0"` |  |
 | upgradeAgent.controlPlane.restartPolicy | string | `"OnFailure"` |  |
 | upgradeAgent.nodeSelector | object | `{}` |  |
+| upgradeAgent.resources | object | `{}` |  |
 | upgradeAgent.tolerations | list | `[]` |  |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.7.0](https://github.com/norwoodj/helm-docs/releases/v1.7.0)
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
